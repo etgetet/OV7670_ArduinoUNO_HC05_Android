@@ -447,7 +447,7 @@ boolean BTconnected = false;
  
 // connect the STATE pin to Arduino pin D4
 const byte BTpin = 9;
-uint8_t buffer[320];
+uint8_t buffer[640];
 
 void error_led(void){
   DDRB |= 32;//make sure led is output
@@ -534,7 +534,7 @@ void wrSensorRegs8_8(const struct regval_list reglist[]){
 }
 
 void setColor(void){
-  wrSensorRegs8_8(yuv422_ov7670);
+  wrSensorRegs8_8(rgb565_ov7670);
 }
 
 void setRes(void){
@@ -564,11 +564,11 @@ void arduinoUnoInut(void) {
   _delay_ms(3000);
 
     //set up twi for 100khz
-  /*TWSR &= ~3;//disable prescaler for TWI
+  TWSR &= ~3;//disable prescaler for TWI
   TWBR = 72;//set to 100khz
 
     //enable serial
-  UBRR0H = 0;
+  /*UBRR0H = 0;
   UBRR0L = 207;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
   UCSR0A |= 2;//double speed aysnc
   UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
@@ -576,6 +576,7 @@ void arduinoUnoInut(void) {
 }
 
 static void captureImg(uint16_t wg, uint16_t hg){
+
   uint16_t y, x;
 	while (!(PIND & 8));//wait for high
 	while ((PIND & 8));//wait for low
@@ -600,10 +601,10 @@ static void captureImg(uint16_t wg, uint16_t hg){
       while (!(PIND & 4));//wait for high
 		}
 	  while ((PINB & 1));//wait for low
-    Serial.write(buffer, 320);
+    Serial.write(buffer, 640);
 	}
   _delay_ms(5000);
-  while(1)
+  //while(1);
 
 }
 
@@ -611,12 +612,11 @@ void setup(){
   pinMode(LED_BUILTIN, OUTPUT); 
   pinMode(BTpin, INPUT); 
   arduinoUnoInut();
-
   camInit();
   setRes();
   setColor();
   wrReg(0x11, 12); //Earlier it had the value: wrReg(0x11, 12); New version works better for me :) !!!!
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!BTconnected)
    {
      digitalWrite(LED_BUILTIN, LOW); 
